@@ -1,0 +1,7 @@
+*.exe
+*.o
+*.txt
+/memorycheck
+/teste
+/.vscode
+/Avulsos
