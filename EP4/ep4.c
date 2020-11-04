@@ -14,14 +14,14 @@ int dx[4] = {1,0,-1,0};
 int dy[4] = {0,1,0,-1}; 
 
 void *malloc_safe(size_t);
+int **declara_matriz();
+void libera_matriz(int **);
 void imprime_menu();
 int valido(int, int);
+void le_labirinto(char []);
+void imprime_labirinto();
 void calcula_distancia();
 void acha_caminho();
-void le_labirinto(char []);
-void libera_matriz(int **);
-int **declara_matriz();
-void imprime_labirinto();
 void imprime_caminho();
 
 void *malloc_safe (size_t nbytes){
@@ -36,7 +36,8 @@ void *malloc_safe (size_t nbytes){
 }
 
 int **declara_matriz(){
-    //
+    //funcao que declara uma matriz de 
+    //dimensao n x m, que estao declarados globalmente
     int **matriz;
     int i;
 
@@ -46,6 +47,7 @@ int **declara_matriz(){
 }
 
 void libera_matriz(int **matriz){
+    //funcao que libera a matriz de dimensao n x m
     int i;
     
     if(n == -1) return;
@@ -56,6 +58,7 @@ void libera_matriz(int **matriz){
 }
 
 void imprime_menu(){
+    //funcao que imprime o menu
     printf("0: carregar um novo labirinto e posição inicial do Herbert\n");
     printf("1: dar nova posicao inicial do Herbert no mesmo labirinto\n");
     printf("2: sair do programa\n");
@@ -64,11 +67,60 @@ void imprime_menu(){
 }
 
 int valido(int x, int y){
+    //verifica se a posicao esta no labirinto
     if(x < 0 || x >= n || y < 0 || y >= m) return 0;
     return 1;
 }
 
+void le_labirinto(char arquivo[FNMAX]){
+    //funcao que le um labirinto no arquivo passado
+    //e atualiza as variaveis globais n, m, labirinto
+    //cenouras, etc
+    FILE *fp;
+    int i,j;
+    
+    libera_matriz(labirinto);
+    free(cenoura_x);
+    free(cenoura_y);
+    if(! ( fp = fopen( arquivo, "r"))){
+        printf("Erro na abertura do arquivo %s\n\n ERRO: Operacao abortada devido a erro na leitura\n\n\n",arquivo);
+        return;
+    }
+    fscanf(fp, "%d %d", &n, &m);
+    labirinto = declara_matriz();
+    for(i=0; i<n;i++)
+        for(j=0; j<m; j++)
+            fscanf(fp, "%d", &labirinto[i][j]);
+    fscanf(fp, "%d", &cenouras);
+    cenoura_x = malloc_safe(cenouras * sizeof(int));
+    cenoura_y = malloc_safe(cenouras * sizeof(int));
+    for(i=0; i<n; i++) fscanf(fp, "%d %d", &cenoura_x[i], &cenoura_y[i]);
+    for(i=0; i<n; i++){
+        cenoura_x[i]--;
+        cenoura_y[i]--;
+    }
+    fclose(fp);
+}
+
+void imprime_labirinto(){
+    //funcao que imprime o labirinto 
+    int i,j;
+
+    printf("Labirinto:\n");
+    for(i=0; i<n; i++){
+        for (j=0; j<m;j ++){
+            printf("%d ", labirinto[i][j]);
+        }
+        printf("\n");
+    }
+    return;
+}
+
 void calcula_distancia(){
+    //funcao que calcula a distancia de todas as casas
+    //do labirinto ate uma cenoura, fazemos isso setando
+    //as distancias ate todas as cenouras para 0 e 
+    //adicionando todas as posicoes com cenoura a pilha
     int i,j;
     int inf = n*m +1;
     Queue qx = queueInit(n * m * sizeof(int));
@@ -105,6 +157,12 @@ void calcula_distancia(){
 }
 
 void acha_caminho(){
+    //funcao que com as distancias calculadas
+    //determina um caminho do herbert ate uma cenoura
+    //fazemos isso partindo do herbert e checando de que posicao
+    //que posicao ele veio (dist[veio]+1 = distancia[atual])
+    //caso haja dois vizinhos que satisfacam isso, escolhemos
+    //qualque uma
     int x, y;
     int i,j;
 
@@ -132,47 +190,10 @@ void acha_caminho(){
     }
 }
 
-void le_labirinto(char arquivo[FNMAX]){
-    FILE *fp;
-    int i,j;
-    
-    libera_matriz(labirinto);
-    free(cenoura_x);
-    free(cenoura_y);
-    if(! ( fp = fopen( arquivo, "r"))){
-        printf("Erro na abertura do arquivo %s\n\n ERRO: Operacao abortada devido a erro na leitura\n\n\n",arquivo);
-        return;
-    }
-    fscanf(fp, "%d %d", &n, &m);
-    labirinto = declara_matriz();
-    for(i=0; i<n;i++)
-        for(j=0; j<m; j++)
-            fscanf(fp, "%d", &labirinto[i][j]);
-    fscanf(fp, "%d", &cenouras);
-    cenoura_x = malloc_safe(cenouras * sizeof(int));
-    cenoura_y = malloc_safe(cenouras * sizeof(int));
-    for(i=0; i<n; i++) fscanf(fp, "%d %d", &cenoura_x[i], &cenoura_y[i]);
-    for(i=0; i<n; i++){
-        cenoura_x[i]--;
-        cenoura_y[i]--;
-    }
-    fclose(fp);
-}
 
-void imprime_labirinto(){
-    int i,j;
-
-    printf("Labirinto:\n");
-    for(i=0; i<n; i++){
-        for (j=0; j<m;j ++){
-            printf("%d ", labirinto[i][j]);
-        }
-        printf("\n");
-    }
-    return;
-}
 
 void imprime_caminho(){
+    //funcao que imprime o caminho
     int i,j;
 
     if(distancia[x_ini][y_ini] == m*n + 1)
