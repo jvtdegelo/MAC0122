@@ -4,6 +4,7 @@
  * ATENCAO: Esta interface permite que varias filas sejam 
  *          utilizadas simultaneamente.
  */
+
 typedef struct queue *Queue;
 
 Queue queueInit(int);

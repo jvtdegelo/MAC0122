@@ -175,7 +175,6 @@ void acha_caminho(){
     y = y_ini;
 
     while(distancia[x][y] != 0){
-        printf("%d %d\n", x, y);
         for(i=0; i<4; i++){
             int nx = x + dx[i];
             int ny = y + dy[i];
@@ -197,9 +196,9 @@ void imprime_caminho(){
     int i,j;
 
     if(distancia[x_ini][y_ini] == m*n + 1)
-        printf("\n\nO Herbert não achou nenhuma cenoura!!! :(\n\n");
+        printf("\nO Herbert não achou nenhuma cenoura!!! :(\n\n");
     else
-        printf("\n\nO Herbert achou uma cenoura em %d passos!\n\n", distancia[x_ini][y_ini]);
+        printf("\nO Herbert achou uma cenoura em %d passos!\n\n", distancia[x_ini][y_ini]);
     
     for(i=0; i<n; i++){
         for(j=0; j<m; j++){
@@ -208,8 +207,9 @@ void imprime_caminho(){
             else if(caminho[i][j] == -1) printf("* ");
             else printf("%d ", caminho[i][j]);
         }
-        printf("\n\n");
+        printf("\n");
     }
+    printf("\n");
 }
 
 int main(){
@@ -226,11 +226,19 @@ int main(){
             printf("\n");
             le_labirinto(arquivo);
             imprime_labirinto();
-            printf("\n");
+            printf("\nDigite a posicao inicial do Herbert: ");
+            scanf(" %d %d", &x_ini, &y_ini);
+            x_ini--;
+            y_ini--;
+            calcula_distancia();
+            acha_caminho();
+            imprime_caminho();
+            libera_matriz(distancia);
+            libera_matriz(caminho);
         }
         else if(op == 1){
             printf("\nDigite a posicao inicial do Herbert: ");
-            scanf("%d %d", &x_ini, &y_ini);
+            scanf(" %d %d", &x_ini, &y_ini);
             x_ini--;
             y_ini--;
             calcula_distancia();
