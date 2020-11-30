@@ -90,8 +90,10 @@ crieListaFilmes()
 {
     Filme *cabeca;
     ListaFilmes *lista;
-
-    cabeca = crieFilme("", 0, .0, NULL, 0);
+    lista = mallocSafe(sizeof(ListaFilmes));
+    char st[TAM_DIST + 1] = "";
+    
+    cabeca = crieFilme(st, 0, (float)0.0, st, 0);
     lista -> cab = cabeca;
     lista -> nFilmes = 0;
     cabeca -> prox = cabeca;
@@ -115,13 +117,14 @@ libereListaFilmes(ListaFilmes *lst)
     Filme *atual = cabeca -> prox;
     Filme *prox;
     
-    free(lst);
     while(atual != cabeca){
         prox = atual->prox;
         libereFilme(atual);
         atual = prox;
     }
-    libereFilme(cabeca);
+    cabeca->prox = cabeca;
+    cabeca->ant = cabeca; 
+    lst->nFilmes = 0;
     return;
 }
 
@@ -160,6 +163,7 @@ insiraFilme(ListaFilmes *lst, Filme *flm)
     flm -> ant = cabeca;
     cabeca -> prox = flm;
     proximo -> ant = flm;
+    lst->nFilmes +=1;
 }
 
 
@@ -187,7 +191,7 @@ insiraFilme(ListaFilmes *lst, Filme *flm)
 Bool 
 contemFilme(ListaFilmes *lst, Filme *flm)
 {
-    Filme *cabeca;
+    Filme *cabeca = lst->cab;
     Filme *f;
 
     for(f = cabeca -> prox; f != cabeca; f = f-> prox){
@@ -218,6 +222,7 @@ removaFilme(ListaFilmes *lst, Filme *flm)
     ant->prox = prox;
 
     libereFilme(flm);
+    (lst->nFilmes)--;
     return;
 }
 
@@ -287,8 +292,20 @@ mergeSortFilmes(ListaFilmes *lst, Criterio criterio)
     f1 = (lst1->cab)->prox;
     f2 = (lst2->cab)->prox;
 
-    while (f1 != lst1->cab && f2 != lst2->cab){
-        if(f1 == lst1->cab || (criterio == NOTA && f1->nota <= f2->nota) ||(criterio == NOME && strCmp(f1->nome, f2->nome)> 0)){
+    while (f1 != lst1->cab || f2 != lst2->cab){
+        if(f1 == lst1->cab){
+            atual -> prox = f2;
+            f2->ant = atual;
+            atual = f2;
+            f2 = f2->prox;
+        }
+        else if(f2 == lst2->cab){
+            atual -> prox = f1;
+            f1->ant = atual;
+            atual = f1;
+            f1 = f1->prox;
+        }
+        else if((criterio == NOTA && f1->nota <= f2->nota) ||(criterio == NOME && strCmp((const char *)(f1->nome), (const char *)(f2->nome))> 0)){
             atual -> prox = f2;
             f2->ant = atual;
             atual = f2;
@@ -302,7 +319,12 @@ mergeSortFilmes(ListaFilmes *lst, Criterio criterio)
         }
     }
     atual->prox = lst->cab;
-    (lst->cab)->ant = atual; 
+    (lst->cab)->ant = atual;
+    libereFilme(lst1->cab);
+    libereFilme(lst2->cab);
+    free(lst1);
+    free(lst2);
+    return;
 }
 
 /*----------------------------------------------------------------------

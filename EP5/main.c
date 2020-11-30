@@ -10,8 +10,8 @@
   SUA DISTRIBUIÇÃO. ESTOU CIENTE QUE OS CASOS DE PLÁGIO SÃO PUNIDOS COM 
   REPROVAÇÃO DIRETA NA DISCIPLINA.
 
-  Nome:
-  NUSP:
+  Nome: Joao Victor Texeira Degelo
+  NUSP: 11803479
 
   IMDB: main.c 
 
@@ -38,6 +38,8 @@
 #include "util.h"     /* mallocSafe(), leiaString() */
 #include "st.h"       /* initST(), putFilmeST(), getFilmeST(), showST(),
                          freeST() */
+#include <string.h>
+
 
 /*------------------------------------------------------------------- 
   P R O T O T I P O S 
@@ -58,7 +60,6 @@ main(int argc, char *argv[])
     clock_t start, end; /* usadas para medir tempo de processamento */
     double elapsed;
     /* declaracao das demais variaveis do main */
-
     /*------------------------------------------------------------*/
     /* imprima o cabecalho */
     printf("MAC0122 2020 - EP5\n");
@@ -101,6 +102,25 @@ main(int argc, char *argv[])
         /*---------------------------------------------*/
         case PROCURAR:
         {
+            Filme *flm;
+            char pal[TAM_STR+1];
+            int len, achou = 0;
+            printf("Digite parte do nome do filme a ser procurado: ");
+            len = leiaString(pal, TAM_STR);
+
+            for(flm = lst->cab->prox; flm != lst->cab; flm = flm->prox){
+                if(achePalavra((unsigned char *)pal, len, (unsigned char *)flm->nome, strlen(flm->nome)-1)){
+                    char c;
+                    mostreFilme(flm);
+                    printf("Esse eh o filme procurado? [s/n/x] (x para sair): ");
+                    scanf(" %c", &c);
+                    if(c == 's' || c == 'x'){
+                        achou = 1;
+                        break;
+                    }
+                }
+            }
+            if(achou == 0) printf("Nao tem mais filmes com essa palavra\n");
             break;
         }
 
@@ -157,25 +177,52 @@ main(int argc, char *argv[])
             flm = crieFilme(dist, votos, nota, nome, ano);
             mostreFilme(flm);
             
-            /* completar essa opcao */
+            insiraFilme(lst, flm);
             break;
         }
 
         /*---------------------------------------------*/
         case REMOVER:
         {
+            Filme *flm;
+            char pal[TAM_STR+1];
+            int len, achou = 0;
+            printf("Digite parte do nome do filme a ser procurado: ");
+            len = leiaString(pal, TAM_STR);
+
+            for(flm = lst->cab->prox; flm != lst->cab; flm = flm->prox){
+                if(achePalavra((unsigned char *)pal, len, (unsigned char *)flm->nome, strlen(flm->nome)-1)){
+                    char c;
+                    mostreFilme(flm);
+                    printf("Esse é o filme procurado? [s/n/x] (x para sair): ");
+                    scanf(" %c", &c);
+                    if(c == 's' ){
+                        achou = 1;
+                        removaFilme(lst, flm);
+                        printf("Filme removido\n");
+                        break;
+                    }
+                    else if(c == 'x'){
+                        achou = 1; 
+                        break;
+                    }
+                }
+            }
+            if(achou == 0) printf("Nao tem mais filmes com essa palavra\n");
             break;
         }
 
         /*---------------------------------------------*/
         case ORDENAR_NOTA_M:
         {
+            mergeSortFilmes(lst, NOTA);
             break;
         }
 
         /*---------------------------------------------*/
         case ORDENAR_NOME_M:
         {
+            mergeSortFilmes(lst, NOME);
             break;
         }
 
@@ -194,30 +241,39 @@ main(int argc, char *argv[])
         /*---------------------------------------------*/
         case MOSTRAR:
         {
+            mostreListaFilmes(lst);
             break;
         }
 
         /*---------------------------------------------*/
         case MOSTRAR_MENOR:
         {
+            mergeSortFilmes(lst, NOTA);
+            mostreMelhoresFilmes(lst);
             break;
         }
 
         /*---------------------------------------------*/
         case MOSTRAR_MAIOR:
         {
+            mergeSortFilmes(lst, NOTA);
+            mostrePioresFilmes(lst);
             break;
         }
       
         /*---------------------------------------------*/
         case LIMPAR:
         {
+            libereListaFilmes(lst);
             break;
         }
 
         /*---------------------------------------------*/
         case SAIR:
         {
+            libereListaFilmes(lst);
+            libereFilme(lst->cab);
+            free(lst);
             break;
         }
 

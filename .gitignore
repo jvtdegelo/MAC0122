@@ -1,6 +1,7 @@
 *.exe
 *.o
 *.txt
+*.list
 /memorycheck
 /teste
 /.vscode

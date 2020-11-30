@@ -301,7 +301,7 @@ graveListaFilmes(ListaFilmes *lst)
     if ((arq = fopen(nomeArq, "w")) == NULL) 
     {
         fprintf(stderr,
-                "graveLista: ERRO nao fio possivel criar o arquivo '%s'.\n\n", 
+                "graveLista: ERRO nao foi possivel criar o arquivo '%s'.\n\n", 
                 nomeArq);
         return; 
     }
@@ -399,9 +399,11 @@ void
 mostreListaFilmes(ListaFilmes *lst)
 {
     Filme *f;
-
+    if(lst->cab->prox == lst->cab){
+        printf("AVISO: mostreListaFilmes: lista de filmes vazia\n");
+        return;
+    }
     for (f = (lst->cab)->prox; f != lst->cab; f = f->prox){
-        LINHA;
         mostreFilme(f);
     }
     LINHA;
@@ -427,33 +429,30 @@ mostreListaFilmes(ListaFilmes *lst)
 void 
 mostreMelhoresFilmes(ListaFilmes *lst)
 {
-    int n, votos, i;
+    int n, votos, i = 0;
     float nota_maxima;
     Filme *f;
 
     printf("Qual o numero de filmes a ser mostrado: ");
     scanf("%d", &n);
     printf("Qual a nota maxima: ");
-    scanf("%lf", &nota_maxima);
-    printf("Qual o numero minimo de votos");
+    scanf("%f", &nota_maxima);
+    printf("Qual o numero minimo de votos: ");
     scanf("%d", &votos);
 
     for(f = (lst->cab)->prox; f != lst->cab; f = f->prox){
         if(f->nota < nota_maxima) break;
     }
-    if (f == lst->cab){
-        printf("Não existem filmes com pelo no máximo essa nota\n");
-        //conferir a saida nesse caso no executavel
-    }
     while(f != lst->cab && n>0){
         if(f-> votos >= votos){
             mostreFilme(f);
             i++;
+            n--;
         }
         f = f->prox;
     }
     LINHA;
-    printf("Esses sao os %d melhores filmes com nota menor que %lf e pelo menos %d votos.\n", i, nota_maxima, votos);
+    printf("Esses sao os %d melhores filmes com nota menor que %.2f e pelo menos %d votos.\n", i, nota_maxima, votos);
 }
 
 /*----------------------------------------------------------------------
@@ -475,31 +474,28 @@ mostreMelhoresFilmes(ListaFilmes *lst)
 void 
 mostrePioresFilmes(ListaFilmes *lst)
 {
-    int n, votos, i;
+    int n, votos, i = 0;
     float nota_minima;
     Filme *f;
 
     printf("Qual o numero de filmes a ser mostrado: ");
     scanf("%d", &n);
     printf("Qual a nota minima: ");
-    scanf("%lf", &nota_minima);
-    printf("Qual o numero minimo de votos");
+    scanf("%f", &nota_minima);
+    printf("Qual o numero minimo de votos: ");
     scanf("%d", &votos);
 
     for(f = (lst->cab)->ant; f != lst->cab; f = f->ant){
         if(f->nota > nota_minima) break;
     }
-    if (f == lst->cab){
-        printf("Não existem filmes com pelo menos essa nota\n");
-        //conferir a saida nesse caso no executavel
-    }
     while(f != lst->cab && n>0){
         if(f-> votos > votos){
             mostreFilme(f);
             i++;
+            n--;
         }
         f = f->ant;
     }
     LINHA;
-    printf("Esses sao os %d piores filmes com nota maior que %lf e pelo menos %d votos.\n", i, nota_minima, votos);
+    printf("Esses sao os %d piores filmes com nota maior que %.2f e pelo menos %d votos.\n", i, nota_minima, votos);
 }
