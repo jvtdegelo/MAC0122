@@ -120,7 +120,6 @@ main(int argc, char *argv[])
                     }
                 }
             }
-            if(achou == 0) printf("Nao tem mais filmes com essa palavra\n");
             break;
         }
 
@@ -229,13 +228,13 @@ main(int argc, char *argv[])
         /*---------------------------------------------*/
         case ORDENAR_NOTA_Q: /* opcional */
         {
-            break;
+            quickSortFilmes(lst, NOTA);
         }
 
         /*---------------------------------------------*/
         case ORDENAR_NOME_Q: /* opcional */
         {
-            break;
+            quickSortFilmes(lst, NOME);
         }
 
         /*---------------------------------------------*/
@@ -345,5 +344,4 @@ leiaOpcao()
 
     return opcao;
 }
-
 

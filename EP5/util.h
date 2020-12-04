@@ -39,7 +39,7 @@ typedef unsigned char uchar;
 
 /*---------------------------------------------------------------*/
 /* prototipos de funcoes                                         */
-
+int *preProcessamento(unsigned char p[], int m);
 Bool  achePalavra(unsigned char *pal,   int tPal, 
 		  unsigned char *texto, int tTex);
 

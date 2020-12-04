@@ -362,7 +362,77 @@ mergeSortFilmes(ListaFilmes *lst, Criterio criterio)
 void 
 quickSortFilmes(ListaFilmes *lst, Criterio criterio)
 {
-    AVISO(quickSortFilmes em filmes.c: Vixe ainda nao fiz essa funcao...);
+    if(lst->nFilmes <=1) return;
+
+    Filme *f = lst->cab->prox, *f_prox;
+    Filme *q = lst->cab->ant;
+    ListaFilmes *lst1 = crieListaFilmes();
+    ListaFilmes *lst2 = crieListaFilmes();
+
+    while(f != q){
+        f_prox = f->prox;
+        if((criterio == NOTA && f->nota>=q->nota) || (criterio == NOME && strcmp(f->nome, q->nome)<0)){
+            lst1->cab->prox->ant = f;
+            f->prox = lst1->cab->prox;
+            lst1->cab->prox = f;
+            f->ant = lst1->cab;
+            lst1->nFilmes = lst1->nFilmes + 1;
+        }
+        else {
+            lst2->cab->prox->ant = f;
+            f->prox = lst2->cab->prox;
+            lst2->cab->prox = f;
+            f->ant = lst2->cab;
+            lst2->nFilmes = lst2->nFilmes + 1;
+        }
+        f = f_prox;
+    }
+   
+    quickSortFilmes(lst1, criterio);
+    quickSortFilmes(lst2, criterio);
+    if(lst1->nFilmes == 0){
+        lst->cab->prox = q;
+        q->ant = lst->cab;
+        q->prox = lst2->cab->prox;
+        lst2->cab->prox->ant = q;
+        lst2->cab->ant->prox = lst->cab;
+        lst->cab->ant = lst2->cab->ant;
+        libereFilme(lst1->cab);
+        libereFilme(lst2->cab);
+        free(lst1);
+        free(lst2);
+        return;
+    }
+    if(lst2->nFilmes == 0){
+        lst->cab->ant = q;
+        q->prox = lst->cab;
+        q->ant = lst1->cab->ant;
+        lst1->cab->ant->prox = q;
+        lst1->cab->prox->ant = lst->cab;
+        lst->cab->prox = lst1->cab->prox;
+        libereFilme(lst1->cab);
+        libereFilme(lst2->cab);
+        free(lst1);
+        free(lst2);
+        return;
+    }
+    lst->cab->prox = lst1->cab->prox;
+    lst1->cab->prox->ant = lst->cab;
+
+    lst1->cab->ant->prox = q;
+    q->ant = lst1->cab->ant;
+
+    lst2->cab->prox->ant = q;
+    q->prox = lst2->cab->prox;
+
+    lst2->cab->ant->prox = lst->cab;
+    lst->cab->ant = lst2->cab->ant;
+    
+    libereFilme(lst1->cab);
+    libereFilme(lst2->cab);
+    free(lst1);
+    free(lst2);
+    return;
 }
 
 /*----------------------------------------------------------------------
