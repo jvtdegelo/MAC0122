@@ -34,6 +34,7 @@
 #include <stdlib.h>  /* NULL, free() */
 #include <stdio.h>   /* printf(), scanf() */ 
 #include <string.h>  /* strlen(), strncpy(), strcmp(), strtok() */
+#include <ctype.h>   /* tolower() */
 
 #include "util.h"    /* Bool, mallocSafe() */
 #include "iofilmes.h"
@@ -376,18 +377,17 @@ quickSortFilmes(ListaFilmes *lst, Criterio criterio)
             f->prox = lst1->cab->prox;
             lst1->cab->prox = f;
             f->ant = lst1->cab;
-            lst1->nFilmes = lst1->nFilmes + 1;
+            lst1->nFilmes = (lst1->nFilmes) + 1;
         }
         else {
             lst2->cab->prox->ant = f;
             f->prox = lst2->cab->prox;
             lst2->cab->prox = f;
             f->ant = lst2->cab;
-            lst2->nFilmes = lst2->nFilmes + 1;
+            lst2->nFilmes = (lst2->nFilmes) + 1;
         }
         f = f_prox;
     }
-   
     quickSortFilmes(lst1, criterio);
     quickSortFilmes(lst2, criterio);
     if(lst1->nFilmes == 0){
@@ -463,5 +463,25 @@ quickSortFilmes(ListaFilmes *lst, Criterio criterio)
 void
 hashFilmes(ListaFilmes *lst)
 {
-    AVISO(hashFilmes em filmes.c: Vixe ainda nao fiz essa funcao...);
+    Filme *f;
+    String nome;
+    
+    freeST();
+    initST();
+    
+    nome = mallocSafe(TAM_STR*sizeof(char));
+    
+    for (f = lst->cab->prox; f != lst->cab; f = f->prox){
+        int i;
+        char *token;
+        strcpy(nome, f->nome);
+        for(i = 0; nome[i]!='\0'; i++) nome[i] = tolower(nome[i]);
+        token = strtok(nome, " ");
+        while(token != NULL){
+            putFilmeST(token, f);
+            token = strtok(NULL, " ");
+        }
+    }
+    free(nome);
+    return;
 }

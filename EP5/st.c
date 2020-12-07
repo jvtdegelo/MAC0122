@@ -10,7 +10,8 @@
   SUA DISTRIBUIÇÃO. ESTOU CIENTE QUE OS CASOS DE PLÁGIO SÃO PUNIDOS COM 
   REPROVAÇÃO DIRETA NA DISCIPLINA.
 
-  Nome:
+  Nome: Joao Victor Texeira Degelo
+  NUSP: 11803479
 
   st.c
   IMDB 2020
@@ -101,7 +102,7 @@ struct celST
 /* ponteiros para as M listas de colisoes: para cada h em
  * [0..M-1], hashHead[h] e um ponteiro para o inicio da lista
  * encadeada de celulas do tipo CelST que contem as palavras cujo
- * valor da funcao de hash e' h.
+ * valor da funcao de hash é h.
  */
 static CelST *hashHead[M];
 
@@ -126,8 +127,11 @@ static int nChaves = 0;
 static int
 hash(String palavra)
 {
-    return 0;
-    AVISO(hash em st.c: Vixe! Ainda nao fiz essa funcao ...);
+    int i, h = 0;
+    int primo = 251;
+    for (i = 0; palavra[i] != '\0'; i++)
+        h = (h * primo + tolower(palavra[i])) % M;
+    return h;
 }
 
 /*-----------------------------------------------------------*/
@@ -140,7 +144,11 @@ hash(String palavra)
 void
 initST()
 {
-    AVISO(initST em st.c: Vixe! Ainda nao fiz essa funcao ...);
+    int h;
+    for (h = 0; h < M; h ++)
+        hashHead[h] = NULL;
+
+    return;
 }
 
 /*-----------------------------------------------------------*/
@@ -177,7 +185,42 @@ initST()
 void
 putFilmeST(String palavra, Filme *flm)
 {
-    AVISO(putFilmeST em st.c: Vixe! Ainda nao fiz essa funcao ...);
+    int h = hash(palavra);
+    CelST *atual = hashHead[h];
+    if(atual == NULL) nChaves++;
+    
+    while(atual != NULL){
+        if(strcmp(atual->palavra, palavra) == 0){
+            break;
+        }
+        atual = atual-> proxST;
+    }
+    
+    if(atual == NULL){
+        //a celST que contem a palavra esta armazenada no atual
+        CelST *new_cel;
+        ListaPtrFilmes *lista;
+        String pal;
+
+        pal = mallocSafe((strlen(palavra)+1)*sizeof(char));
+        strcpy(pal, palavra);
+        lista = mallocSafe(sizeof(ListaPtrFilmes));
+        new_cel = mallocSafe(sizeof(CelST));
+        lista->ptrFlm = flm;
+        lista->proxPtr = NULL;
+        new_cel->iniListaPtr = lista;
+        new_cel->proxST = hashHead[h];
+        hashHead[h] = new_cel;
+        new_cel->palavra = pal;
+    }
+    else{
+        ListaPtrFilmes *lista;
+        
+        lista = mallocSafe(sizeof(ListaPtrFilmes));
+        lista->ptrFlm = flm;
+        lista->proxPtr = atual->iniListaPtr;
+        atual->iniListaPtr = lista;
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -187,24 +230,32 @@ putFilmeST(String palavra, Filme *flm)
  *  RECEBE e procura um string PALAVRA na tabela de dispersao
  *  (tabela de simbola) e:
  *
- *     - se PALAVRA nao e' encontrada a funcao RETORNA NULL.
+ *     - se PALAVRA nao é encontrada a funcao RETORNA NULL.
  *
- *     - se PALAVRA e' encontra a funcao RETORNA o ponteiro 
+ *     - se PALAVRA é encontrada a funcao RETORNA o ponteiro 
  *       para o inicio da lista de ponteiros de filmes que 
  *       contem a palavra (campo iniListaPtr da celST que 
  *       contem PALAVRA).
  *        
- * Para fazer a busca de PALAVRA na tabela de dispersao esta 
+ * Para fazer a busca de PALAVRA na tabela de dispersão esta 
  * funcao deve usar a funcao hash().
  * 
  * Para comparar strings utilize a funcao strCmp() (util.h).
  *
- * OBSERVACAO: A busca por PALAVRA e' 'case insensitive'.
+ * OBSERVACAO: A busca por PALAVRA é case insensitive.
  */
 ListaPtrFilmes *
 getFilmeST(String palavra)
 {
-    AVISO(getFilmeST em st.c: Vixe! Ainda nao fiz essa funcao ...);
+    int h = hash(palavra);
+    CelST *atual = hashHead[h];
+
+    while(atual != NULL){
+        if(strcmp(atual->palavra, palavra) == 0){
+            return atual->iniListaPtr;
+        }
+        atual = atual-> proxST;
+    }
     return NULL;
 }
 
@@ -212,10 +263,10 @@ getFilmeST(String palavra)
 /*
  *  showST
  *
- *  Mostra todas as palsvras na tabela de simbolos.
+ *  Mostra todas as palavras na tabela de simbolos.
  *
  *  Exemplo de tabela produzida por esta funcao para o arquivo 
- *  dezfilmes.list:
+ *  10-filmes.list:
  *
  *  . . . . . . . . . . . . . . . . . . . . . . .
  *  Tabela de simbolos: { codigo: lista de chaves }
@@ -252,7 +303,18 @@ getFilmeST(String palavra)
 void
 showST()
 {
-    AVISO(showST em st.c: Vixe! Ainda nao fiz essa funcao ...);
+    CelST *atual, *h;
+    int i;
+    printf("Tabela de simbolos: { codigo: lista de chaves }\n");
+    for(i = 0; i < M; i++) {
+        atual = hashHead[i];
+        if(atual == NULL) continue; 
+        printf("{ %5d: ", i);
+        for(h = atual; h != NULL; h = h->proxST){
+            printf("'%s' ", h->palavra);
+        }
+        printf("}\n");
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -265,6 +327,20 @@ showST()
 void
 freeST()
 {
-    AVISO(freeST em st.c: Vixe! Ainda nao fiz essa funcao ...);
+    CelST *atual, *h, *h_prox;
+    int i;
+    for(i = 0; i < M; i++) {
+        atual = hashHead[i];
+        for(h = atual; h != NULL; h = h_prox){
+            ListaPtrFilmes *lista, *prox_lista;
+            h_prox = h->proxST;
+            if(h->palavra != NULL) free(h->palavra);
+            while(lista != NULL){
+                prox_lista = lista->proxPtr;
+                if(lista != NULL) free(lista);
+                lista = prox_lista;
+            }
+            if (h != NULL) free(h);
+        }
+    }
 }
-

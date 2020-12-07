@@ -104,7 +104,7 @@ main(int argc, char *argv[])
         {
             Filme *flm;
             char pal[TAM_STR+1];
-            int len, achou = 0;
+            int len;
             printf("Digite parte do nome do filme a ser procurado: ");
             len = leiaString(pal, TAM_STR);
 
@@ -112,10 +112,9 @@ main(int argc, char *argv[])
                 if(achePalavra((unsigned char *)pal, len, (unsigned char *)flm->nome, strlen(flm->nome)-1)){
                     char c;
                     mostreFilme(flm);
-                    printf("Esse eh o filme procurado? [s/n/x] (x para sair): ");
+                    printf("Esse é o filme procurado? [s/n/x] (x para sair): ");
                     scanf(" %c", &c);
                     if(c == 's' || c == 'x'){
-                        achou = 1;
                         break;
                     }
                 }
@@ -126,24 +125,45 @@ main(int argc, char *argv[])
         /*---------------------------------------------*/
         case HASH: /* opcional */
         {
+            hashFilmes(lst);
             break;
         }
 
         /*---------------------------------------------*/
         case PROCURAR_HASH: /* opcional */
         {
+            String palavra;
+            ListaPtrFilmes *lista;
+            palavra = mallocSafe(TAM_STR*sizeof(char));
+            printf("Digite um parte do nome do filme a ser procurado: ");
+            leiaString(palavra, TAM_STR);
+            lista = getFilmeST(palavra);
+            if(lista == NULL){
+                printf("Filme nao encontrado\n");
+                break;
+            }
+            while(lista != NULL){
+                char op;
+                mostreFilme(lista->ptrFlm);
+                printf("Esse é o filme procurado? [s/n/x] (x para sair): ");
+                scanf(" %c", &op);
+                if(op == 's' || op == 'x') break;
+                lista = lista->proxPtr;
+            }
             break;
         }
 
         /*---------------------------------------------*/
         case MOSTRAR_HASH: /* opcional */
         {
+            showST();
             break;
         }
 
         /*---------------------------------------------*/
         case LIMPAR_HASH: /* opcional */
         {
+            freeST();
             break;
         }
 
@@ -229,12 +249,14 @@ main(int argc, char *argv[])
         case ORDENAR_NOTA_Q: /* opcional */
         {
             quickSortFilmes(lst, NOTA);
+            break;
         }
 
         /*---------------------------------------------*/
         case ORDENAR_NOME_Q: /* opcional */
-        {
+        {   
             quickSortFilmes(lst, NOME);
+            break;
         }
 
         /*---------------------------------------------*/
@@ -344,4 +366,5 @@ leiaOpcao()
 
     return opcao;
 }
+
 
