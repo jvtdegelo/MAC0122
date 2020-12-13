@@ -332,15 +332,16 @@ freeST()
     for(i = 0; i < M; i++) {
         atual = hashHead[i];
         for(h = atual; h != NULL; h = h_prox){
-            ListaPtrFilmes *lista, *prox_lista;
+            ListaPtrFilmes *lista = h->iniListaPtr, *prox_lista;
             h_prox = h->proxST;
             if(h->palavra != NULL) free(h->palavra);
             while(lista != NULL){
                 prox_lista = lista->proxPtr;
-                if(lista != NULL) free(lista);
+                free(lista);
                 lista = prox_lista;
             }
-            if (h != NULL) free(h);
+            free(h);
         }
     }
 }
+
